@@ -1,0 +1,22 @@
+import { useCallback, useEffect, useState } from 'react';
+
+interface AsyncState<T> { data: T | null; error: string | null; loading: boolean }
+
+/** Runs `fn` whenever `deps` change. Keeps previous data visible while reloading. */
+export function useAsync<T>(fn: () => Promise<T>, deps: readonly unknown[]) {
+  const [state, setState] = useState<AsyncState<T>>({ data: null, error: null, loading: true });
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    let alive = true;
+    setState((s) => ({ ...s, loading: true, error: null }));
+    fn()
+      .then((data) => { if (alive) setState({ data, error: null, loading: false }); })
+      .catch((e: unknown) => { if (alive) setState({ data: null, error: e instanceof Error ? e.message : 'Unexpected error', loading: false }); });
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [...deps, tick]);
+
+  const reload = useCallback(() => setTick((t) => t + 1), []);
+  return { ...state, reload };
+}

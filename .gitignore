@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+*.log
+.vscode/
+.idea/
+*.db
+*.sqlite3
+backend/agentguard.db
